@@ -1,4 +1,10 @@
  import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import org.jfugue.pattern.PatternProducer;
+import org.jfugue.player.Player;
+import org.jfugue.theory.Note;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -8,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -17,27 +22,42 @@ import javafx.stage.Stage;
 public class Main extends Application{
 
 	public static Stage stage;
+	final static private List<Note> octaveList = new ArrayList<>();
+	final static private Player player = new Player();
+	private Note playQuizNote = null;
+	
 	public static void main(String[] args){
-		
-		/*Player player = new Player();
-		String[] octave = {"Cw", "Dbw", "Dw", "EbW", "EW", "FW", "GbW", "GW", "AbW", "AW", "BbW", "BW"};
-		
-		List<Note> octaveList = new ArrayList<>();
-		
-		for(String s: octave){
-			octaveList.add( new Note(s));
+		initializeLisNote();
+       launch(args);		
+	}
+	
+	private static void initializeLisNote() {
+		String[] octave = { "Cw", "Dbw", "Dw", "EbW", "EW", "FW", "GbW", "GW", "AbW", "AW", "BbW", "BW" };
+		for(String note: octave){
+			octaveList.add(new Note(note));
 		}
 		
-		for(Note n: octaveList){
-			player.play(n);
-			//System.out.println("The octave of the note " + n.originalString + " is " + n.getOctave());
-		}*/
-		
-       launch(args);		
-	
 	}
+
+	private void setPlayButtonEventHandler(Button playButton){
+		playButton.setOnAction((event)->{
+			player.play(getQuizNote());
+		});
+	}
+	
+	
+	private PatternProducer getQuizNote() {
+		if( null == playQuizNote){
+			Random random = new Random();
+			playQuizNote = octaveList.get(random.nextInt(octaveList.size()));
+		}
+		return playQuizNote;
+	}
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		
 		primaryStage.setTitle("Pitch Test");
 		primaryStage.sizeToScene();
 		
@@ -46,7 +66,6 @@ public class Main extends Application{
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(20);
 		grid.setVgap(20);
-//		grid.setGridLinesVisible(true);
 		
 		grid.setPadding(new Insets(25, 25, 25, 25));
 		Scene scene = new Scene(grid, 650, 500);
@@ -59,6 +78,7 @@ public class Main extends Application{
 		Button playQuizNote = new Button();
 		playQuizNote.setText("Play Note");
 		playQuizNote.setVisible(true);
+		setPlayButtonEventHandler(playQuizNote);
 		
 		grid.add(playQuizNote, 0,1);
 		
@@ -139,5 +159,13 @@ public class Main extends Application{
 		primaryStage.show();
 		
 	}
+	
+	
+	private void setChoicesText(RadioButton radioButton){
+		
+	}
+	
+	
+	
 	
 }
