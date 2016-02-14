@@ -1,9 +1,7 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
 
 import org.jfugue.player.Player;
 import org.jfugue.theory.Note;
@@ -27,33 +25,47 @@ public class Main extends Application {
 	public static Stage stage;
 	final static private List<Note> octaveList = new ArrayList<>();
 	final static private Player player = new Player();
+	
 	private Note playQuizNote = null;
+	
 	private RadioButton[] choices;
-
+	Button playQuizNoteButton;
+	Button submitAnswer;
+	Button startButton;
+	Button stopButton;
+	
+	Text correctAnswer;
+	Text userAnswer;
+	Text correctOrIncorrect;
+	Text totalAnswers;
+	Text correctAnswers;
+	Text percentCorrect;
+	
+	
+	
 	public static void main(String[] args) {
 		initializeLisNote();
 		launch(args);
 	}
 
 	private static void initializeLisNote() {
-		String[] octave = { "Cw", "Dbw", "Dw", "EbW", "EW", "FW", "GbW", "GW", "AbW", "AW", "BbW", "BW" };
+		String[] octave = { "CW", "DbW", "DW", "EbW", "EW", "FW", "GbW", "GW", "AbW", "AW", "BbW", "BW" };
 		for (String note : octave) {
 			octaveList.add(new Note(note));
 		}
 
 	}
 
-	private void setPlayButtonEventHandler(Button playButton) {
-		playButton.setOnAction((event) -> {
+	private void setPlayButtonEventHandler() {
+		playQuizNoteButton.setOnAction((event) -> {
 			player.play(playQuizNote);
 		});
 	}
 
 	private void setQuizNote() {
-			Collections.shuffle(octaveList);
-            playQuizNote = octaveList.get(0);			
+		Collections.shuffle(octaveList);
+		playQuizNote = octaveList.get(0);
 	}
-	
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -67,9 +79,10 @@ public class Main extends Application {
 		Text sceneTitle = createSceneTitle();
 		grid.add(sceneTitle, 0, 0, 2, 1);
 
-		Button playQuizNote = createPlayQuizNote();
+		playQuizNoteButton = createButton("play", "play", false);
+		setPlayButtonEventHandler();
 
-		grid.add(playQuizNote, 0, 1);
+		grid.add(playQuizNoteButton, 0, 1);
 
 		VBox choicesBox = new VBox();
 		ToggleGroup choicesToggleGroup = new ToggleGroup();
@@ -80,43 +93,35 @@ public class Main extends Application {
 
 		grid.add(choicesBox, 0, 3);
 
-		Text correctAnswer = new Text();
-		correctAnswer.setText("Correct Answer: ");
+		correctAnswer = createText("Correct Answer: ", "correctanswer", false);
 		grid.add(correctAnswer, 0, 4);
 
-		Text userAnswer = new Text();
-		userAnswer.setText("Your Answer: ");
+		userAnswer = createText("user Answer: ", "useranswer", false);
 		grid.add(userAnswer, 1, 4);
 
-		Text correctOrIncorrect = new Text();
-		correctOrIncorrect.setText("TODO: Green or Red");
+		correctOrIncorrect = createText("Correct or Incorrect", "correctorincorrect", false);
 		grid.add(correctOrIncorrect, 2, 4);
 
-		Text totalAnswers = new Text();
-		totalAnswers.setText("Total Answers: ");
+		totalAnswers = createText("Total Answers: ", "totalanswers", false);
 		grid.add(totalAnswers, 0, 5);
 
-		Text correctAnswers = new Text();
-		correctAnswers.setText("Correct Answer: ");
+		correctAnswers = createText("Correct Answer: ", "correctanswer", false);
 		grid.add(correctAnswers, 1, 5);
 
-		Text percentCorrect = new Text();
-		percentCorrect.setText("Percent correct: ");
+		percentCorrect = createText("Percent Correct", "percentcorrect", false);
 		grid.add(percentCorrect, 2, 5);
 
-		Button submitAnswer = new Button();
-		submitAnswer.setText("submit");
-		submitAnswer.setId("submit");
-
+		submitAnswer = createButton("submit", "submit", false);
 		grid.add(submitAnswer, 0, 6);
 
-		Button nextQuestion = createNextButton();
-		grid.add(nextQuestion, 5, 6);
+		startButton =  createButton("start", "start", true);
+		stopButton = createButton("stop", "stop", false);
+		
+		//TODO: Don't like either of the these functions, too many parameters, maybe all the gui inputs should be member varialbes
+		setOnActionStartPitchTest();
+		setOnActionStopButtonButton();
 
-		Button startButton = createStartButton();
-		Button stopButton = createStopButton();
-
-		grid.add(startButton, 4, 10);
+		grid.add(startButton, 5, 10);
 		grid.add(stopButton, 5, 10);
 
 		primaryStage.setScene(scene);
@@ -124,52 +129,97 @@ public class Main extends Application {
 
 	}
 
-	private Button createNextButton() {
-		Button nextQuestion = new Button();
-		nextQuestion.setText("next");
-		nextQuestion.setId("next");
-		return nextQuestion;
+	
+	private Text createText(String value, String id, boolean isVisible){
+		Text text = new Text();
+		text.setText(value);
+		text.setId(id);
+		text.setVisible(isVisible);
+		return text;
+	}
+	
+	private Button createButton(String value, String id, boolean isVisible){
+		Button button = new Button();
+		button.setText(value);
+		button.setId(id);
+		button.setVisible(isVisible);
+		return button;
 	}
 
-	private Button createStopButton() {
-		Button stopButton = new Button();
-		stopButton.setText("Stop");
-		stopButton.setId("cancel");
-		stopButton.setVisible(true);
-		return stopButton;
-	}
-
-	private Button createStartButton() {
-		Button startButton = new Button();
-		startButton.setText("Start");
-		startButton.setId("start");
-		startButton.setVisible(true);
+	
+	private void setOnActionStartPitchTest() {
 		startButton.setOnAction((event) -> {
 			setQuizNote();
 			setChoices();
+			startButton.setVisible(false);
+			stopButton.setVisible(true);
+			playQuizNoteButton.setVisible(true);
+			submitAnswer.setVisible(true);
+			
+			correctAnswer.setVisible(true);
+			userAnswer.setVisible(true);
+			correctOrIncorrect.setVisible(true);
+			totalAnswers.setVisible(true);
+			correctAnswers.setVisible(true);
+			percentCorrect.setVisible(true);
+			
+			for(RadioButton choice: choices){
+				choice.setVisible(true);
+			}
+			
 		});
-		return startButton;
+	}
+	
+	private void setOnActionStopButtonButton(){
+		stopButton.setOnAction((event) -> {
+			startButton.setVisible(true);
+			stopButton.setVisible(false);
+			playQuizNoteButton.setVisible(false);
+			submitAnswer.setVisible(false);
+			correctAnswer.setVisible(false);
+			userAnswer.setVisible(false);
+			correctOrIncorrect.setVisible(false);
+			totalAnswers.setVisible(false);
+			correctAnswers.setVisible(false);
+			percentCorrect.setVisible(false);
+			for(RadioButton choice: choices){
+				choice.setVisible(false);
+			}
+			
+		});
+		
 	}
 
 	private void setChoices() {
-		
-		Object[] notes =  (Object[]) octaveList.stream().filter(n -> !n.toString().equals(playQuizNote.toString())).toArray();
-		
+
+		// Filter out all notes that are not the answer
+		Object[] notes = (Object[]) octaveList.stream().filter(n -> !n.toString().equals(playQuizNote.toString()))
+				.toArray();
+
 		Random random = new Random();
 		int answer = random.nextInt(choices.length);
-		
-		for (int i = 0; i < 5; i++ ) {
+
+		// Possibly use a predicate lambda expression
+		for (int i = 0; i < 5; i++) {
 			if (i == answer) {
-				String[] choice = playQuizNote.toString().split("w");
-				choices[i].setText(choice[0]);
-			}  
-			else{
-				String[] choice = notes[i].toString().split("w");
-				choices[i].setText(choice[0]);
+				 choices[i].setText(filterChoices(playQuizNote.toString()) + " Answer");
+			} else {
+				choices[i].setText(filterChoices( notes[i].toString()));
 			}
 		}
 	}
 
+	
+	private String filterChoices(String note){
+		String[] choice = note.toString().split("w");
+		if (choice[0].length() > 1 && choice[0].charAt(1) == 'B') {
+			String correctNote = choice[0].charAt(0) + "b";
+			return correctNote;
+		}
+		return choice[0];
+	}
+	
+	
 	private GridPane createGridPane() {
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -200,21 +250,12 @@ public class Main extends Application {
 			choice.setId("choice" + val);
 			choice.setText("choice" + val);
 			choice.setToggleGroup(choicesToggleGroup);
+			choice.setVisible(false);
 			val++;
 		}
 		return choices;
 	}
 
-	private Button createPlayQuizNote() {
-		Button playQuizNote = new Button();
-		playQuizNote.setText("Play Note");
-		playQuizNote.setVisible(true);
-		setPlayButtonEventHandler(playQuizNote);
-		return playQuizNote;
-	}
-
-	private void setChoicesText(RadioButton radioButton) {
-
-	}
+	
 
 }
