@@ -116,6 +116,22 @@ public class Main extends Application {
 		grid.add(submitAnswer, 0, 6);
 
 		nextButton = createButton("next", "next", false);
+		setOnActionNextButton();
+		grid.add(nextButton, 5, 6);
+		
+		startButton =  createButton("start", "start", true);
+		stopButton = createButton("stop", "stop", false);
+		
+		setOnActionStartPitchTest();
+		setOnActionStopButtonButton();
+
+		grid.add(startButton, 5, 10);
+		grid.add(stopButton, 5, 10);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	private void setOnActionNextButton() {
 		nextButton.setOnAction((event) -> {
 			setQuizNote();
 			setChoices();
@@ -128,20 +144,6 @@ public class Main extends Application {
 			percentCorrect.setVisible(false);
 			submitAnswer.setVisible(true);
 		});
-		
-		grid.add(nextButton, 5, 6);
-		
-		startButton =  createButton("start", "start", true);
-		stopButton = createButton("stop", "stop", false);
-		
-		//TODO: Don't like either of the these functions, too many parameters, maybe all the gui inputs should be member varialbes
-		setOnActionStartPitchTest();
-		setOnActionStopButtonButton();
-
-		grid.add(startButton, 5, 10);
-		grid.add(stopButton, 5, 10);
-		primaryStage.setScene(scene);
-		primaryStage.show();
 	}
 
 	private void setOnActionSubmitButton() {
@@ -205,10 +207,6 @@ public class Main extends Application {
 				choice.setVisible(true);
 			}
 		});
-	}
-	
-	private void setOnActionNextButton(){
-		
 	}
 	
 	private void setOnActionStopButtonButton(){
