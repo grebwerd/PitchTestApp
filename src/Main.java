@@ -31,6 +31,7 @@ public class Main extends Application {
 	private RadioButton[] choices;
 	Button playQuizNoteButton;
 	Button submitAnswer;
+	Button nextButton;
 	Button startButton;
 	Button stopButton;
 	
@@ -53,7 +54,6 @@ public class Main extends Application {
 		for (String note : octave) {
 			octaveList.add(new Note(note));
 		}
-
 	}
 
 	private void setPlayButtonEventHandler() {
@@ -112,8 +112,25 @@ public class Main extends Application {
 		grid.add(percentCorrect, 2, 5);
 
 		submitAnswer = createButton("submit", "submit", false);
+		setOnActionSubmitButton();
 		grid.add(submitAnswer, 0, 6);
 
+		nextButton = createButton("next", "next", false);
+		nextButton.setOnAction((event) -> {
+			setQuizNote();
+			setChoices();
+			nextButton.setVisible(false);
+			correctAnswer.setVisible(false);
+			userAnswer.setVisible(false);
+			correctOrIncorrect.setVisible(false);
+			totalAnswers.setVisible(false);
+			correctAnswers.setVisible(false);
+			percentCorrect.setVisible(false);
+			submitAnswer.setVisible(true);
+		});
+		
+		grid.add(nextButton, 5, 6);
+		
 		startButton =  createButton("start", "start", true);
 		stopButton = createButton("stop", "stop", false);
 		
@@ -123,10 +140,38 @@ public class Main extends Application {
 
 		grid.add(startButton, 5, 10);
 		grid.add(stopButton, 5, 10);
-
 		primaryStage.setScene(scene);
 		primaryStage.show();
+	}
 
+	private void setOnActionSubmitButton() {
+		submitAnswer.setOnAction(event->{
+			String guess="";
+			for(RadioButton choice : choices){
+				if(choice.isSelected()){
+					guess = filterChoices(choice.getText());
+				}
+			}
+			
+			correctAnswer.setText("Correct Answer: " + filterChoices(playQuizNote.toString()));
+			userAnswer.setText("User Answer: " + guess);
+			
+			if(filterChoices(playQuizNote.toString()).equals(guess)){
+			      correctOrIncorrect.setText("correct!");	
+			}else{
+				correctOrIncorrect.setText("INCORRECT");
+			}
+			submitAnswer.setVisible(false);
+			
+			nextButton.setVisible(true);
+			correctAnswer.setVisible(true);
+			userAnswer.setVisible(true);
+			correctOrIncorrect.setVisible(true);
+			
+			totalAnswers.setVisible(true);
+			correctAnswers.setVisible(true);
+			percentCorrect.setVisible(true);
+		});
 	}
 
 	
@@ -155,19 +200,15 @@ public class Main extends Application {
 			stopButton.setVisible(true);
 			playQuizNoteButton.setVisible(true);
 			submitAnswer.setVisible(true);
-			
-			correctAnswer.setVisible(true);
-			userAnswer.setVisible(true);
-			correctOrIncorrect.setVisible(true);
-			totalAnswers.setVisible(true);
-			correctAnswers.setVisible(true);
-			percentCorrect.setVisible(true);
-			
+
 			for(RadioButton choice: choices){
 				choice.setVisible(true);
 			}
-			
 		});
+	}
+	
+	private void setOnActionNextButton(){
+		
 	}
 	
 	private void setOnActionStopButtonButton(){
@@ -185,7 +226,6 @@ public class Main extends Application {
 			for(RadioButton choice: choices){
 				choice.setVisible(false);
 			}
-			
 		});
 		
 	}
@@ -202,7 +242,7 @@ public class Main extends Application {
 		// Possibly use a predicate lambda expression
 		for (int i = 0; i < 5; i++) {
 			if (i == answer) {
-				 choices[i].setText(filterChoices(playQuizNote.toString()) + " Answer");
+				 choices[i].setText(filterChoices(playQuizNote.toString()));
 			} else {
 				choices[i].setText(filterChoices( notes[i].toString()));
 			}
