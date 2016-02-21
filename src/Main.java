@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.jfugue.player.Player;
@@ -25,25 +27,27 @@ public class Main extends Application {
 	public static Stage stage;
 	final static private List<Note> octaveList = new ArrayList<>();
 	final static private Player player = new Player();
-	
+
 	private Note playQuizNote = null;
-	
 	private RadioButton[] choices;
+
 	Button playQuizNoteButton;
 	Button submitAnswer;
 	Button nextButton;
 	Button startButton;
 	Button stopButton;
-	
+
 	Text correctAnswer;
 	Text userAnswer;
 	Text correctOrIncorrect;
 	Text totalAnswers;
 	Text correctAnswers;
 	Text percentCorrect;
-	
-	
-	
+
+	private int total = 0;
+	private int correct = 0;
+	private float percent = 0;
+
 	public static void main(String[] args) {
 		initializeLisNote();
 		launch(args);
@@ -118,10 +122,10 @@ public class Main extends Application {
 		nextButton = createButton("next", "next", false);
 		setOnActionNextButton();
 		grid.add(nextButton, 5, 6);
-		
-		startButton =  createButton("start", "start", true);
+
+		startButton = createButton("start", "start", true);
 		stopButton = createButton("stop", "stop", false);
-		
+
 		setOnActionStartPitchTest();
 		setOnActionStopButtonButton();
 
@@ -147,45 +151,59 @@ public class Main extends Application {
 	}
 
 	private void setOnActionSubmitButton() {
-		submitAnswer.setOnAction(event->{
-			String guess="";
-			for(RadioButton choice : choices){
-				if(choice.isSelected()){
-					guess = filterChoices(choice.getText());
+
+		submitAnswer.setOnAction(event -> {
+			if (isChoiceSelect()) {
+				System.out.println("Answer selected");
+				String guess = getChoiceSelect();
+
+				System.out.println("The guess answer is " + guess);
+				/*
+				 * for(RadioButton choice : choices){ if(choice.isSelected()){
+				 * guess = filterChoices(choice.getText()); } }
+				 */
+
+				correctAnswer.setText("Correct Answer: " + filterChoices(playQuizNote.toString()));
+				userAnswer.setText("User Answer: " + guess);
+
+				if (filterChoices(playQuizNote.toString()).equals(guess)) {
+					correctOrIncorrect.setText("correct!");
+				} else {
+					correctOrIncorrect.setText("INCORRECT");
 				}
+				submitAnswer.setVisible(false);
+
+				nextButton.setVisible(true);
+				correctAnswer.setVisible(true);
+				userAnswer.setVisible(true);
+				correctOrIncorrect.setVisible(true);
+
+				totalAnswers.setVisible(true);
+				correctAnswers.setVisible(true);
+				percentCorrect.setVisible(true);
+			} else {
+				System.out.println("Need to select a choice");
 			}
-			
-			correctAnswer.setText("Correct Answer: " + filterChoices(playQuizNote.toString()));
-			userAnswer.setText("User Answer: " + guess);
-			
-			if(filterChoices(playQuizNote.toString()).equals(guess)){
-			      correctOrIncorrect.setText("correct!");	
-			}else{
-				correctOrIncorrect.setText("INCORRECT");
-			}
-			submitAnswer.setVisible(false);
-			
-			nextButton.setVisible(true);
-			correctAnswer.setVisible(true);
-			userAnswer.setVisible(true);
-			correctOrIncorrect.setVisible(true);
-			
-			totalAnswers.setVisible(true);
-			correctAnswers.setVisible(true);
-			percentCorrect.setVisible(true);
 		});
 	}
 
-	
-	private Text createText(String value, String id, boolean isVisible){
+	private boolean isChoiceSelect() {
+		return Arrays.stream(choices).anyMatch(b -> b.isSelected());
+	}
+
+	private String getChoiceSelect() {
+		return Arrays.asList(choices).stream().filter(b -> b.isSelected()).findFirst().get().getText();
+	}
+
+	private Text createText(String value, String id, boolean isVisible) {
 		Text text = new Text();
 		text.setText(value);
 		text.setId(id);
 		text.setVisible(isVisible);
 		return text;
 	}
-	
-	private Button createButton(String value, String id, boolean isVisible){
+
+	private Button createButton(String value, String id, boolean isVisible) {
 		Button button = new Button();
 		button.setText(value);
 		button.setId(id);
@@ -193,7 +211,6 @@ public class Main extends Application {
 		return button;
 	}
 
-	
 	private void setOnActionStartPitchTest() {
 		startButton.setOnAction((event) -> {
 			setQuizNote();
@@ -203,13 +220,13 @@ public class Main extends Application {
 			playQuizNoteButton.setVisible(true);
 			submitAnswer.setVisible(true);
 
-			for(RadioButton choice: choices){
+			for (RadioButton choice : choices) {
 				choice.setVisible(true);
 			}
 		});
 	}
-	
-	private void setOnActionStopButtonButton(){
+
+	private void setOnActionStopButtonButton() {
 		stopButton.setOnAction((event) -> {
 			startButton.setVisible(true);
 			stopButton.setVisible(false);
@@ -221,11 +238,11 @@ public class Main extends Application {
 			totalAnswers.setVisible(false);
 			correctAnswers.setVisible(false);
 			percentCorrect.setVisible(false);
-			for(RadioButton choice: choices){
+			for (RadioButton choice : choices) {
 				choice.setVisible(false);
 			}
 		});
-		
+
 	}
 
 	private void setChoices() {
@@ -240,15 +257,14 @@ public class Main extends Application {
 		// Possibly use a predicate lambda expression
 		for (int i = 0; i < 5; i++) {
 			if (i == answer) {
-				 choices[i].setText(filterChoices(playQuizNote.toString()));
+				choices[i].setText(filterChoices(playQuizNote.toString()));
 			} else {
-				choices[i].setText(filterChoices( notes[i].toString()));
+				choices[i].setText(filterChoices(notes[i].toString()));
 			}
 		}
 	}
 
-	
-	private String filterChoices(String note){
+	private String filterChoices(String note) {
 		String[] choice = note.toString().split("w");
 		if (choice[0].length() > 1 && choice[0].charAt(1) == 'B') {
 			String correctNote = choice[0].charAt(0) + "b";
@@ -256,8 +272,7 @@ public class Main extends Application {
 		}
 		return choice[0];
 	}
-	
-	
+
 	private GridPane createGridPane() {
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -293,7 +308,5 @@ public class Main extends Application {
 		}
 		return choices;
 	}
-
-	
 
 }
