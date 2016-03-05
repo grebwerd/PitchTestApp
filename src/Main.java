@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import org.jfugue.player.Player;
@@ -29,6 +28,7 @@ public class Main extends Application {
 	final static private Player player = new Player();
 
 	private Note playQuizNote = null;
+	private ToggleGroup choicesToggleGroup;
 	private RadioButton[] choices;
 
 	Button playQuizNoteButton;
@@ -89,7 +89,7 @@ public class Main extends Application {
 		grid.add(playQuizNoteButton, 0, 1);
 
 		VBox choicesBox = new VBox();
-		ToggleGroup choicesToggleGroup = new ToggleGroup();
+		choicesToggleGroup = new ToggleGroup();
 
 		choices = createChoices(choicesToggleGroup);
 
@@ -147,6 +147,7 @@ public class Main extends Application {
 			correctAnswers.setVisible(false);
 			percentCorrect.setVisible(false);
 			submitAnswer.setVisible(true);
+			choicesToggleGroup.getSelectedToggle().setSelected(false);
 		});
 	}
 
@@ -154,15 +155,7 @@ public class Main extends Application {
 
 		submitAnswer.setOnAction(event -> {
 			if (isChoiceSelect()) {
-				System.out.println("Answer selected");
 				String guess = getChoiceSelect();
-
-				System.out.println("The guess answer is " + guess);
-				/*
-				 * for(RadioButton choice : choices){ if(choice.isSelected()){
-				 * guess = filterChoices(choice.getText()); } }
-				 */
-
 				correctAnswer.setText("Correct Answer: " + filterChoices(playQuizNote.toString()));
 				userAnswer.setText("User Answer: " + guess);
 
