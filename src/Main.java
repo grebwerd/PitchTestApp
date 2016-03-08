@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,9 +45,9 @@ public class Main extends Application {
 	Text correctAnswers;
 	Text percentCorrect;
 
-	private int total = 0;
-	private int correct = 0;
-	private float percent = 0;
+	private double total = 0;
+	private double correct = 0;
+	private double percent = 0;
 
 	public static void main(String[] args) {
 		initializeLisNote();
@@ -158,12 +159,17 @@ public class Main extends Application {
 				String guess = getChoiceSelect();
 				correctAnswer.setText("Correct Answer: " + filterChoices(playQuizNote.toString()));
 				userAnswer.setText("User Answer: " + guess);
-
+				
 				if (filterChoices(playQuizNote.toString()).equals(guess)) {
 					correctOrIncorrect.setText("correct!");
+					correct++;	
 				} else {
 					correctOrIncorrect.setText("INCORRECT");
 				}
+
+				total++;
+				percent = roundDecimal((correct/total)* 100);
+				
 				submitAnswer.setVisible(false);
 
 				nextButton.setVisible(true);
@@ -172,8 +178,14 @@ public class Main extends Application {
 				correctOrIncorrect.setVisible(true);
 
 				totalAnswers.setVisible(true);
+				totalAnswers.setText("Total Questions: " + total);
+				
 				correctAnswers.setVisible(true);
+				correctAnswers.setText("Correct Answers: " +correct);
+				
 				percentCorrect.setVisible(true);
+				percentCorrect.setText("Percent Correct: " + percent);
+				
 			} else {
 				System.out.println("Need to select a choice");
 			}
@@ -302,4 +314,11 @@ public class Main extends Application {
 		return choices;
 	}
 
+	//Take from stackoverflow
+	//http://stackoverflow.com/questions/8911356/whats-the-best-practice-to-round-a-float-to-2-decimals
+	private double roundDecimal(double d){
+		DecimalFormat twoDecimalFormat = new DecimalFormat("###.##");
+		return Double.valueOf(twoDecimalFormat.format(d));
+	}
+	
 }
